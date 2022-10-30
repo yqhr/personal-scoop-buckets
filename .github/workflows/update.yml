@@ -1,0 +1,30 @@
+name: update
+
+on:
+  push:
+    branches:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+    - name: Installing dependancies
+      run: |
+          sudo apt update
+          sudo apt install -y git curl wget sed jq
+    - name: update the gpg4win manifest (for browser integration)
+      run: |
+          # https://dev.gnupg.org/T4297
+          curl -s https://raw.githubusercontent.com/ScoopInstaller/Extras/master/bucket/gpg4win.json | jq '.installer.args += ["/WITH_BROWSER=1"]' > gpg4win.json
+    - name: git setting
+      run: |
+        git config --local user.email "yqhr@duck.com"
+        git config --local user.name "yqhr"
+    - name: Commit files
+      run: |
+        git add .
+        git commit -m "update" -a
+        git pull
+        git push origin master
